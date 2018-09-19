@@ -1,5 +1,5 @@
 <?php
-#first page in the user flow. initiates the stripe payment. posts data to process.php where stripe creates the charge. 
+#first page in the user flow. initiates the stripe payment. posts data to process.php where stripe creates the charge.
 $stripekey = 'pk_live_neboPBl1ge07PH1qUz0y9rpe';
 #$stripekey ='pk_test_WBJmijjYroO86KbebnkR6EHA';
 
@@ -170,13 +170,13 @@ var handler = StripeCheckout.configure({
 });
 
 //
-//on hitting the submit button. trigger stripe iframe and numnber of donors
+//submit button. triggers the stripe iframe.
 //
 
 $('#customButton').on('click', function(e) {
   e.preventDefault();
-	console.log('submit button clicked');
-	//increment donor count by 1
+	//first, dumb method of counting donors
+	//for some reason when i try to remove it stops working ¯\_(ツ)_/¯
 	$.ajax({
  	 type: "POST",
  	 url: "increment.php",
