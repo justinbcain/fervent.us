@@ -1,9 +1,19 @@
 # fervent.us
-User flow goes: okcity.center.php > process.php > echoenergy-confirm.php. 
-Process.php creates a charge, which then causes stripe to call webhook-incrementer.php via a webhook. 
-Uploads.php posts the user's uploaded image with frame overlaid to the server. 
-As of today (9/19) the webhook-incrementer looks to be counting correctly after setting it up last night. 
-However, there are only a few transactions.
 
-Check out https://fervent.us/okcity.center2.php for a test flow.  
-Use card number 4242 4242 4242 4242 with filler data for testing .
+A PHP web app built on a LAMP stack.  
+
+The campaign landing page takes donations through a stripe form. Upon succesful completion the user is sent to the confirmation page. Stripe increments the donor number by sending the completed transaction to a webhook, which then updates the donor number in the database.  
+
+On the confiramtion page the user can upload a custom image, where a frame is overlaid.  Upon confirming their image, the frame and image are combined into a single image which is posted to the server. Facebook's Graph API is called through their JavaScript SDK and the Facebook bot crawls the page. It grabs the corresponding meta data to create a post for the user to then share on Facebook.
+
+Creating New Campaigns: 
+
+Editor.php allows for new campaign creation.  Page formatting and campaign donor number are stored in the 'campaigns' database. 
+
+When creating a new campaign editor spins up new instances of homepagetemplate, webhook, test-webhook, confirmationpage. Formatting values like background images and headers are saved to the database. 
+
+The admin creating the campaign must integrate the new campaign with stripe before running a campaign or a test campaign. 
+
+
+
+
