@@ -1,31 +1,68 @@
 <?php
-#creates the user frame and allows upload to FB.
-#redirects new users to first page in flow
-
 ini_set('session.gc_maxlifetime',5);
 session_set_cookie_params(5);
 session_start();
 
+
+$servername = "localhost";
+$username = "dbuser";
+$password = "organicBackbone4217";
+$db = "campaigns";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $db);
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+
+
+$uri = $_SERVER['REQUEST_URI'];
+preg_match('/[^\/].*(?=(\-confirm))/',$uri,$match);
+$campaign = $match[0];
+
+
+
+$sql = "SELECT * FROM pageFormatting WHERE campaignName = '$campaign'";
+
+$result = $conn->query($sql);
+
+$row = $result->fetch_assoc();
+
+
+$conn->close();
+
+$current =  $_GET['id'];
+
 $paymentComplete = isset($_SESSION['number']);
 
 if(
+	$row['testMode']==0 &&
 	strpos($_SERVER['HTTP_USER_AGENT'],'facebookexternalhit') === false &&
 	strpos($_SERVER["HTTP_USER_AGENT"], 'Facebot') === false &&
 	$paymentComplete == false
 
 ){
-  #header('Location: https://fervent.us/okcity.center.php');
+  header("Location: https://fervent.us/$campaign");
 }
 
 
-
-$current =  $_GET['ids'];
+if($row['testMode']==0){
+$ogurl = "https://fervent.us/$campaign-confirm.php?id=$current";
+$ogImageSecureUrl = "https://fervent.us/$campaign-images/donors/$current.png";
+} else {
+  $ogurl = "https://fervent.us/$campaign-confirm.php?status=test&id=$current";
+  $ogImageSecureUrl = "https://fervent.us/$campaign-images/test-donors/$current.png";
+}
 
 ?>
 
+
+
 <html>
 <head>
-	<link rel="shortcut icon" type="image/png" href="citycenter.png"/>
+	<link rel="shortcut icon" type="image/png" href="<?=$row['logo']?>"/>
 	<!-- Google Tag Manager -->
 	<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 	new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -33,7 +70,7 @@ $current =  $_GET['ids'];
 	'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 	})(window,document,'script','dataLayer','GTM-54T674M');</script>
 	<!-- End Google Tag Manager -->
-	<link rel="stylesheet" type="text/css" href="echoenergy-confirm.css">
+	<link rel="stylesheet" type="text/css" href="confirmpage.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -42,59 +79,85 @@ $current =  $_GET['ids'];
 	<script src="node_modules/exif-js/exif.js"></script>
 	<link href="https://fonts.googleapis.com/css?family=Courgette" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Meie+Script" rel="stylesheet">
+
 	<meta property="fb:app_id" content="527400594366316" />
-	<meta property="og:url" content="https://fervent.us/echoenergy-confirm.php?ids=<?=$current?>">
-	<meta property="og:image:secure_url" content="https://fervent.us/images/<?=$current?>.png">
+	<meta property="og:url" content="<?=$ogurl?>">
+	<meta property="og:image:secure_url" content="<?=$ogImageSecureUrl?>">
+  <meta property="og:image" content="<?=$ogImageSecureUrl?>">
 	<meta property="og:type" content="article" >
-	<meta property="og:title" content="Be a part of something big right now!" >
-	<meta property="og:description" content="Help Echo Energy and me increase safe places to play and feeding services to inner city youth by giving now to City Center. Once we get 1000 partners to give as little as $5, Echo Energy will donate $30,000 and fully fund food shortage programs at City Center. I am number <?=$current?>! WHAT'S YOUR NUMBER? #OKCfortheWYN @echoenergyco. https://fervent.us/okcity.center.php Follow this link to join!">
-	<meta property="og:image" content="https://fervent.us/images/<?=$current?>.png" >
+	<meta property="og:title" content="<?=$row['fbTitle']?>" >
+	<meta property="og:description" content="<?=$row['fbDescription']?>">
 	<meta property="og:image:width" content="688" >
 	<meta property="og:image:height" content="360" >
 	<script src="https://js.stripe.com/v3/"></script>
 
-	<script>
-		window.fbAsyncInit = function() {
-			FB.init({
-				appId            : '527400594366316',
-				autoLogAppEvents : true,
-				xfbml            : true,
-				version          : 'v3.1'
-			});
-		};
-
-		(function(d, s, id){
-			 var js, fjs = d.getElementsByTagName(s)[0];
-			 if (d.getElementById(id)) {return;}
-			 js = d.createElement(s); js.id = id;
-			 js.src = "https://connect.facebook.net/en_US/sdk.js";
-			 fjs.parentNode.insertBefore(js, fjs);
-		 }(document, 'script', 'facebook-jssdk'));
-	</script>
-
-	<script>
-	function shareOverrideOGMeta(overrideLink, overrideTitle, overrideDescription, overrideImage)
-	{
-		FB.ui({
-			method: 'share_open_graph',
-			action_type: 'og.likes',
-			action_properties: JSON.stringify({
-				object: {
-					'og:url': overrideLink,
-					'og:title': overrideTitle,
-					'og:description': overrideDescription,
-					'og:image': overrideImage
-				}
-			})
-		},
-		function (response) {
-		// Action after response
-		});
-	}
-	</script>
-
 
 </head>
+<style>
+html {
+ background-image:url(<?=$row['campaignName'].'-images/'.$row['backgroundImage']?>); no-repeat center center fixed;
+ -webkit-background-size: cover;
+ -moz-background-size: cover;
+ -o-background-size: cover;
+ background-size: cover;
+}
+
+#p1{
+	background-image:url(<?=$row['campaignName'].'-images/'.$row['placeholder1']?>);
+	background-size:100%;
+}
+#p2{
+	background-image:url(<?=$row['campaignName'].'-images/'.$row['placeholder2']?>);
+	background-size:100%;;
+}
+#p3{
+	background-image:url(<?=$row['campaignName'].'-images/'.$row['placeholder3']?>);
+	background-size:100%;
+}
+#p4{
+	background-image:url(<?=$row['campaignName'].'-images/'.$row['placeholder4']?>);
+	background-size:100%;
+}
+#p5{
+	background-image:url(<?=$row['campaignName'].'-images/'.$row['placeholder5']?>);
+	background-size:100%;
+}
+#p6{
+	background-image:url(<?=$row['campaignName'].'-images/'.$row['placeholder6']?>);
+	background-size:100%;
+}
+#p7{
+	background-image:url(<?=$row['campaignName'].'-images/'.$row['placeholder7']?>);
+	background-size:100%;
+}
+#p8{
+	background-image:url(<?=$row['campaignName'].'-images/'.$row['placeholder8']?>);
+	background-size:100%;
+}
+#p9{
+	background-image:url(<?=$row['campaignName'].'-images/'.$row['placeholder9']?>);
+	background-size:100%;
+}
+#p10{
+	background-image:url(<?=$row['campaignName'].'-images/'.$row['placeholder10']?>);
+	background-size:100%;
+}
+
+.frame {
+	background-image: url('<?=$row['campaignName'].'-images/'.$row['miniFrame']?>');
+	background-size:100%;
+	height:100%;
+	width:100%;
+	position:absolute;
+	top:0;
+
+}
+
+.copy {
+	color:<?=$row['copyFontColor']?>;
+}
+
+</style>
 <body>
 <script>
   window.fbAsyncInit = function() {
@@ -147,13 +210,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 	</div>
 
 
-
+  <!--test placing this image here and see if fb will crawl it -->
+  <img src="<?=$ogImageSecureUrl?>" style="display:none"/>
 
 	<div class="header">
 		<h2 id="header1"> Thank you for your support! </h2>
 		<h3 id="instructions"> Help grow the campaign by sharing on facebook! </br> Click the upload button to upload your own photo. </h3>
 
 	</div>
+
+
 
 
 
@@ -183,31 +249,32 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 
 	<div class="copy">
-		<p> Thanks to the generosity of Echo Energy, once 1,000 advocates give and share, Echo Energy will donate $30,000 to OKCityCenter.
+		<p> <?=$row['copy']?> </p>
 	</div>
 
-	<div class="ifError">
-		<p> If you encounter any errors please contact info@okcity.center</p>
-	</div>
 
 	<div class="footer">
 		<h4> Site Powered By Fervent </h4>
 	</div>
 
-	<div class="testholder" style="width:100%;display:none;">
+	<div class="testholder" style="width:100%;">
 		<div class="test" style="width:688;height:360;background-color:black;margin:auto;">
 			<canvas id="myCanvas" height = '360' width = '688' ></canvas>
 		</div>
 	</div>
 
 </div>
+
+  <canvas id="number" style="position:absolute;top:247;left:0;">
+
+  </canvas>
+
 </body>
 
 <script>
 
 
-
-frame = '<img src="frame.png" id="frame" style="margin-top:247px;width:360px;"/>';
+frame = '<img src="<?=$campaign?>-images/<?=$row['frame']?>" id="frame" style="margin-top:247px;width:360px;"/>';
 
 // set the viewport size
 var basic = $('.cropHolder').croppie({
@@ -220,7 +287,38 @@ var basic = $('.cropHolder').croppie({
 
 });
 
-var idNumber = '<div id="number" style="text-align:left;width:100%;margin-top:-246px;margin-left:287px;position:relative;z-index:500;"> <p style="color:white;font-size:22px;margin-top:170px;margin-right:10px;font-family: Meie Scrip;font-style:italic;"> <?=$current ?>... </p> </div>'
+// adjust the number on the canvas in the image preview
+var numberCanv = document.getElementById('number');
+numberCanv.width = 360;
+numberCanv.height = 114.516;
+var numberCtx = numberCanv.getContext('2d');
+
+
+var x = <?=$row['donorNumberX']?>;
+console.log(x);
+//console.log(x);
+var y = <?=$row['donorNumberY']?>;
+console.log(y);
+//console.log(y);
+var fontSize = <?=$row['donorFontSize']?>+'pt';
+console.log(fontSize);
+//console.log('font size : ',fontSize);
+var fontColor = "<?=$row['donorFontColor']?>";
+console.log(fontColor);
+var font = "<?=$row['donorFontSelection']?>";
+console.log(font);
+
+numberCtx.fillStyle = fontColor;
+numberCtx.font = `${fontSize} ${font}`;
+//numberCtx.drawImage(background,0,0,numberCanv.width,numberCanv.height);
+numberCtx.fillText("<?=$current?>",x,y);
+//numberCtx.fillStyle = `${fontColor}`
+
+
+
+
+
+//var idNumber = `<canvas id="numberPlacement" style="position:absolute;top:0;left:0;"> <p style="color:white;font-size:22px;margin-top:0;margin-right:0;font-family: Meie Scrip;font-style:italic;"> <?=$current ?>... </p> </canvas>`;
 
 // get uploaded images and binds to the cropppie canvas
 function readURL(input) {
@@ -257,7 +355,8 @@ var ctx = c.getContext('2d');
 
 
 window.onload = function(){
-img = 'blakegriffing.jpeg';
+img = '<?=$row['campaignName'].'-images/'.$row['defaultFrameImage']?>';
+
 
 
 
@@ -268,6 +367,7 @@ basic.croppie('bind', {
     url: img,
 });
 $('.cr-boundary').append(frame);
+var idNumber = document.getElementById('number');
 $('.cr-boundary').append(idNumber);
 
 }
@@ -281,12 +381,13 @@ function uploadToFB(){
 }
 
 
+
 $('.checkButton').click(function(event){
 	$('.uploadButton1').hide();
 	$('.checkButton').hide();
 	$('.fbShareButton').show();
 	$('#fbicon').show();
-	$('#instructions').html('Click The Facebook Icon To Share!'+'<br><br>'+'Suggested Post: '+'<br><br>'+'<span style="font-size:12px"> Help Echo Energy and me increase safe places to play and feeding services to inner city youth by giving now to City Center. Once we get 1000 partners to give as little as $5, Echo Energy will donate $30,000 and fully fund food shortage programs at City Center. I am number <?=$current?>! WHAT\'S YOUR NUMBER? #OKCfortheWYN @echoenergyco' + '<br><br>' + "https://fervent.us/okcity.center.php"+ '<br>' +  'Follow this link to join now!'+'</span>');
+	$('#instructions').html('Click The Facebook Icon To Share!'+'<br><br>'+'Suggested Post: '+'<br><br>'+'<span style="font-size:12px">' + "<?=$row['suggestedPost']?>" );
 
 
 	  event.preventDefault();
@@ -300,16 +401,30 @@ $('.checkButton').click(function(event){
 				).then(
 					function(){
 						frameSet()
-						ctx.fillText("<?=$current ?>...",452,305);
+            ctx.font = `${fontSize} ${font}`;
+            ctx.fillStyle = `${fontColor}`
+						ctx.fillText("<?=$current ?>",160+x,247+y);
 					var dataURL = c.toDataURL();
 					$.ajax({
 					    type: "POST",
-					    url: 'uploads.php',
+					    url: 'upload-images-with-frames.php',
 					    data: {
 			     			imgBase64: dataURL,
-								number: <?=$current?>
+								number: <?=$current?>,
+                campaign: '<?=$campaign?>',
+                testMode: <?=$row['testMode']?>
 			  			},
+							//once the image is uploaded post the page contents to facebook for caching
+							//this helps facebook collect page information when the user uploads
 					    success: function(){
+								FB.api(
+								  '/',
+								  'POST',
+								  {"scrape":"true","id":"<?=$ogurl?>","token":"527400594366316|Z-Qtrzme4lExJHYkJHU5RZdKoSY"},
+								  function(response) {
+
+								  }
+								);
 			      	}
 			      });
 				}
