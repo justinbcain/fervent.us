@@ -11,8 +11,8 @@ if($name != 'cgreen@1211dev.com' && $pwerd != 'Redbud4216!' && $_SESSION['signed
   setcookie("signedIn", 1);
 }
 
-$servername = "localhost";
-$username = "dbuser";
+$servername = "xxxxxxxxxxxxx";
+$username = "xxxxxxxxxxxxx";
 $password = "xxxxxxxxxxxxx";
 $db = "campaigns";
 

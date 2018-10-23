@@ -8,8 +8,8 @@ $uri = $_SERVER['REQUEST_URI'];
 preg_match('/[^\/].*(?=(\-webhook))/',$uri,$match);
 $campaign = $match[0];
 
-$servername = "localhost";
-$username = "dbuser";
+$servername = "xxxxxxxxxxxxx";
+$username = "xxxxxxxxxxxxx";
 $password = "xxxxxxxxxxxxx";
 $db = "campaigns";
 

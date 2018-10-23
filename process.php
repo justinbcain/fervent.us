@@ -7,8 +7,8 @@ session_set_cookie_params(5);
 session_start();
 
 
-$servername = "localhost";
-$username = "dbuser";
+$servername = "xxxxxxxxxxxxx";
+$username = "xxxxxxxxxxxxx";
 $password = "xxxxxxxxxxxxx";
 $db = "campaigns";
 
