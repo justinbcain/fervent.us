@@ -6,7 +6,7 @@ session_start();
 
 $servername = "localhost";
 $username = "dbuser";
-$password = "organicBackbone4217";
+$password = "xxxxxxxxxxxxx";
 $db = "campaigns";
 
 // Create connection

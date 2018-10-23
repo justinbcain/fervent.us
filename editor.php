@@ -13,7 +13,7 @@ if($name != 'cgreen@1211dev.com' && $pwerd != 'Redbud4216!' && $_SESSION['signed
 
 $servername = "localhost";
 $username = "dbuser";
-$password = "organicBackbone4217";
+$password = "xxxxxxxxxxxxx";
 $db = "campaigns";
 
 
