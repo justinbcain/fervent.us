@@ -157,6 +157,18 @@ html {
 	color:<?=$row['copyFontColor']?>;
 }
 
+.uploadButton1 {
+	height: 50px;
+	padding-top: 0px;
+	cursor: pointer;
+}
+
+.uploadButton1:focus {
+    outline: -webkit-focus-ring-color auto 0px;
+		border-radius: 50%;
+}
+
+
 </style>
 <body>
 <script>
@@ -227,12 +239,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		<div class="buttonBorder">
 			<div class="initialUpload">
 				<!--<input type="file" id="file" class="files" onchange="readURL(this)">-->
-				<input type="file"  id="file" class="files" name="cameraInput" onchange="readURL(this)">
-				<label for="file">
-					<div class="uploadButton1">
-						<i class="fa fa-upload" style="font-size:24px;border-radius:10px"></i>
-					</div>
-				</label>
+        <input type="file"  id="file" class="files" name="cameraInput" onchange="readURL(this)">
+        <button class="uploadButton1 btn btn-primary">
+          <i class="fa fa-upload" style="font-size:24px;border-radius:10px"></i>
+        </button>
 			</div>
 			<div class="checkButton">
 	          <i class="fa fa-check" aria-hidden="true" style="font-size:24px;color:white"></i>
@@ -272,6 +282,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </body>
 
 <script>
+
+$(".uploadButton1").click(function(event){
+  event.preventDefault();
+  $("#file").trigger("click")
+})
 
 
 frame = '<img src="<?=$campaign?>-images/<?=$row['frame']?>" id="frame" style="margin-top:247px;width:360px;"/>';
