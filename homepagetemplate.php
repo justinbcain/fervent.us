@@ -9,12 +9,11 @@ $username = "xxxxxxxxxxxxx";
 $password = "xxxxxxxxxxxxx";
 $db = "campaigns";
 
+$error = 0;
 
-
-
-
-
-
+if(isset($_GET["error"])) {
+  $error = $_GET["error"];
+}
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $db);
@@ -159,6 +158,13 @@ html {
 	color:<?=$row['copyFontColor']?>;
 }
 
+.alert-danger {
+Background-color: red;
+margin:10px;
+padding:5px;
+color: white;
+text-align:center;
+}
 </style>
 <body>
   <?php
@@ -228,6 +234,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 			<div class="frame"></div>
 		</div>
 	</div>
+
+  <?php if($error == 1) { ?>
+		<div class="alert alert-danger">
+			<h4>Card was declined</h4>
+		</div>
+	<?php } ?>
+	<?php if($error == 2) { ?>
+		<div class="alert alert-danger">
+			<h4>There was an error processing your payment.</h4>
+		</div>
+	<?php } ?>
 
 	<div class="formAndVideo">
 		<div class="stripeRow">

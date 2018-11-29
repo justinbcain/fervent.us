@@ -34,7 +34,7 @@ isset($row['donorCount']) ? $donorCount = $row['donorCount'] : $donorCount = 1;
 //composer requirement for stripe sdk
 require_once('vendor/autoload.php');
 
-
+$homePage = "https://fervent.us/$campaign.php";
 
 if($row['testMode']==1){
   $stripeToken = $row['stripeTestTokenSecret'];
@@ -60,6 +60,7 @@ $paid = isset($_SESSION['number']);
 $amount = $_POST['amountInCents'];
 $token = $_POST['stripeToken'];
 $email = $_POST['stripeEmail'];
+$error = 0;
 
 
 try {
@@ -71,16 +72,39 @@ try {
         "receipt_email" => $email,
         "metadata" => array("donorNumber" => $current),
     ]);
-} catch(Stripe_CardError $e) {
-  $unsuccessful = true;
-    // The card has been declined
-}
+  }catch(Stripe_CardError $e) {
+    $unsuccessful = true;
+    $error = 1;
+  } catch (Stripe_InvalidRequestError $e) {
+    $unsuccessful = true;
+    // Invalid parameters were supplied to Stripe's API
+    $error = 2;
+  } catch (Stripe_AuthenticationError $e) {
+    $unsuccessful = true;
+    // Authentication with Stripe's API failed
+    $error = 2;
+  } catch (Stripe_ApiConnectionError $e) {
+    $unsuccessful = true;
+    // Network communication with Stripe failed
+    $error = 2;
+  } catch (Stripe_Error $e) {
+    $unsuccessful = true;
+    // Display a very generic error to the user, and maybe send
+    // yourself an email
+    $error = 2;
+  } catch (Exception $e) {
+    $unsuccessful = true;
+    // Something else happened, completely unrelated to Stripe
+    $error = 2;
+  }
 
 echo $unsuccessful;
 
 if($unsuccessful == false){
     $_SESSION['number'] = $current;
     header("Location:$nextPage");
+} else {
+  header("Location:$homePage?error=$error");
 }
 $conn->close();
 

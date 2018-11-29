@@ -168,6 +168,9 @@ html {
 		border-radius: 50%;
 }
 
+.loader {
+  display: none;
+}
 
 </style>
 <body>
@@ -247,10 +250,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 			<div class="checkButton">
 	          <i class="fa fa-check" aria-hidden="true" style="font-size:24px;color:white"></i>
 			</div>
-	        <div class="fbShareButton" onclick="uploadToFB()">
-	          <img src="fbicon.png" id="fbicon"/>
-	        </div>
-	    </div>
+      <div class="loader">
+        <i class="fa fa-spinner fa-pulse" aria-hidden="true" style="font-size:24px"></i>
+      </div>
+      <div class="fbShareButton" onclick="uploadToFB()">
+        <img src="fbicon.png" id="fbicon"/>
+      </div>
+	  </div>
 	</div>
 
 	<div class="cropHolder">
@@ -400,6 +406,7 @@ function uploadToFB(){
 $('.checkButton').click(function(event){
 	$('.uploadButton1').hide();
 	$('.checkButton').hide();
+	$('.loader').show();
 
 	  event.preventDefault();
 	  $(window).width() < 500 ? $('#explain5').fadeIn() : $('#explain4').fadeIn();
@@ -433,9 +440,10 @@ $('.checkButton').click(function(event){
 								  'POST',
 								  {"scrape":"true","id":"<?=$ogurl?>","token":"527400594366316|Z-Qtrzme4lExJHYkJHU5RZdKoSY"},
 								  function(response) {
-                  	$('.fbShareButton').show();
-                  	$('#fbicon').show();
-                  	$('#instructions').html('Click The Facebook Icon To Share!'+'<br><br>'+'Suggested Post: '+'<br><br>'+'<span style="font-size:12px">' + "<?=$row['suggestedPost']?>" );
+                    $('.loader').hide();
+                    $('.fbShareButton').show();
+                    $('#fbicon').show();
+                    $('#instructions').html('Click The Facebook Icon To Share!'+'<br><br>'+'Suggested Post: '+'<br><br>'+'<span style="font-size:12px">' + "<?=$row['suggestedPost']?>" );
 								  }
 								);
 			      	}
@@ -453,7 +461,7 @@ $('.checkButton').click(function(event){
 		framew = frameimg.width;
 		ctx.drawImage(frameimg,164,248,360,(360/framew)*frameh);
 		}
-    
+
     img.src= base64;
     ctx.font = "italic 22px Meie Scrip";
     ctx.fillStyle = 'white';
